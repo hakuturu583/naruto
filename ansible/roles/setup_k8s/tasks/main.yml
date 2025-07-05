@@ -34,6 +34,7 @@
       - lsb-release
     state: present
     update_cache: false  # Already updated above
+    allow_downgrade: true
   become: true
 
 - name: Create keyrings directory
@@ -64,6 +65,7 @@
       - kubectl={{ kubernetes_version }}*
     state: present
     update_cache: true
+    allow_downgrade: true
 
 - name: Hold Kubernetes packages
   ansible.builtin.dpkg_selections:
