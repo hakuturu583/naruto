@@ -1,7 +1,5 @@
 all:
-  children:
-    master:
-      hosts:
-        master-node:
-          ansible_host: 127.0.0.1  # Replace with your master IP
-          node_type: master
+  hosts:
+    localhost:
+      ansible_connection: local
+      node_type: master

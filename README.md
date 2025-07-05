@@ -25,6 +25,16 @@ You can also use Ansible to automate the Kubernetes setup:
 
 Before running Ansible, ensure SSH access is configured:
 
+0. **Install required packages**:
+```bash
+# For SSH password authentication
+sudo apt-get install openssh-server sshpass
+
+# Start SSH service if not running
+sudo systemctl start ssh
+sudo systemctl enable ssh
+```
+
 1. **SSH Key Setup**: Generate SSH keys if you haven't already:
 ```bash
 ssh-keygen -t rsa -b 4096
@@ -45,6 +55,10 @@ ssh user@your-master-ip
 
 1. Install Ansible dependencies:
 ```bash
+# Install system dependencies
+sudo apt-get install python3-pip sshpass
+
+# Install Ansible collections
 ansible-galaxy collection install -r ansible/requirements.yml
 ```
 
@@ -74,8 +88,11 @@ all:
 ansible-playbook -i inventory.yml setup-k8s.yml
 ```
 
-If you setup in single node, you can use this command.
+If you setup in single node (local machine), you can use this command:
 
 ```bash
-ansible-playbook -i inventory_standalone.yml setup-k8s.yml
+# Uses local connection - no SSH required
+ansible-playbook -i inventory_standalone.yml setup-k8s.yml --ask-become-pass
 ```
+
+Note: The `inventory_standalone.yml` uses `ansible_connection: local` which runs commands directly on the local machine without SSH.
