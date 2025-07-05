@@ -1,6 +1,6 @@
 ---
 - name: Install required packages
-  apt:
+  ansible.builtin.apt:
     name:
       - apt-transport-https
       - ca-certificates
@@ -9,34 +9,34 @@
       - lsb-release
       - python3-pip
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Install kubernetes Python library
-  pip:
+  ansible.builtin.pip:
     name: kubernetes
     state: present
 
 - name: Add Kubernetes apt key
-  apt_key:
+  ansible.builtin.apt_key:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     state: present
 
 - name: Add Kubernetes repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
     state: present
 
 - name: Install Kubernetes packages
-  apt:
+  ansible.builtin.apt:
     name:
       - kubelet={{ kubernetes_version }}*
       - kubeadm={{ kubernetes_version }}*
       - kubectl={{ kubernetes_version }}*
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Hold Kubernetes packages
-  dpkg_selections:
+  ansible.builtin.dpkg_selections:
     name: "{{ item }}"
     selection: hold
   loop:
@@ -45,24 +45,24 @@
     - kubectl
 
 - name: Initialize Kubernetes master
-  command: kubeadm init --pod-network-cidr={{ pod_network_cidr }}
+  ansible.builtin.command: kubeadm init --pod-network-cidr={{ pod_network_cidr }}
   args:
     creates: /etc/kubernetes/admin.conf
   when: node_type == "master"
   register: kubeadm_init
 
 - name: Create .kube directory
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/.kube"
     state: directory
     mode: '0755'
   when: node_type == "master"
 
 - name: Copy admin.conf to user's kube config
-  copy:
+  ansible.builtin.copy:
     src: /etc/kubernetes/admin.conf
     dest: "{{ ansible_env.HOME }}/.kube/config"
-    remote_src: yes
+    remote_src: true
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: '0644'

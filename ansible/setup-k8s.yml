@@ -3,4 +3,4 @@
   hosts: all
   become: true
   roles:
-    - setup-k8s
+    - setup_k8s
