@@ -3,5 +3,5 @@ all:
     master:
       hosts:
         master-node:
-          ansible_host: 0.0.0.0  # Replace with your master IP
+          ansible_host: 127.0.0.1  # Replace with your master IP
           node_type: master

@@ -45,8 +45,8 @@
     - kubectl
 
 - name: Initialize Kubernetes master
-  ansible.builtin.command: kubeadm init --pod-network-cidr={{ pod_network_cidr }}
-  args:
+  ansible.builtin.command:
+    cmd: kubeadm init --pod-network-cidr={{ pod_network_cidr }}
     creates: /etc/kubernetes/admin.conf
   when: node_type == "master"
   register: kubeadm_init
