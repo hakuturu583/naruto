@@ -84,20 +84,44 @@
   when: node_type == "master"
   register: kubeadm_init
 
-- name: Create .kube directory
+- name: Get real user home directory
+  ansible.builtin.shell: |
+    if [ -n "$SUDO_USER" ]; then
+      echo ~$SUDO_USER
+    else
+      echo ~$(whoami)
+    fi
+  register: real_user_home
+  changed_when: false
+  when: node_type == "master"
+
+- name: Get real username
+  ansible.builtin.shell: |
+    if [ -n "$SUDO_USER" ]; then
+      echo $SUDO_USER
+    else
+      whoami
+    fi
+  register: real_username
+  changed_when: false
+  when: node_type == "master"
+
+- name: Create .kube directory for user
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.kube"
+    path: "{{ real_user_home.stdout }}/.kube"
     state: directory
     mode: '0755'
+    owner: "{{ real_username.stdout }}"
+    group: "{{ real_username.stdout }}"
   when: node_type == "master"
 
 - name: Copy admin.conf to user's kube config
   ansible.builtin.copy:
     src: /etc/kubernetes/admin.conf
-    dest: "{{ ansible_env.HOME }}/.kube/config"
+    dest: "{{ real_user_home.stdout }}/.kube/config"
     remote_src: true
-    owner: "{{ ansible_user_id | default(ansible_env.USER) }}"
-    group: "{{ ansible_user_id | default(ansible_env.USER) }}"
+    owner: "{{ real_username.stdout }}"
+    group: "{{ real_username.stdout }}"
     mode: '0644'
   when: node_type == "master"
 
@@ -105,6 +129,6 @@
   kubernetes.core.k8s:
     src: https://docs.projectcalico.org/manifests/calico.yaml
     state: present
-    kubeconfig: "{{ ansible_env.HOME }}/.kube/config"
+    kubeconfig: /etc/kubernetes/admin.conf  # Use admin.conf directly
   when: node_type == "master"
   run_once: true
