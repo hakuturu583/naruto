@@ -1,0 +1,4 @@
+---
+node_type: master
+kubernetes_version: "1.28.0"
+pod_network_cidr: "10.244.0.0/16"

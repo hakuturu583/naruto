@@ -1,0 +1,77 @@
+---
+- name: Install required packages
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - python3-pip
+    state: present
+    update_cache: yes
+
+- name: Install kubernetes Python library
+  pip:
+    name: kubernetes
+    state: present
+
+- name: Add Kubernetes apt key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Add Kubernetes repository
+  apt_repository:
+    repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+    state: present
+
+- name: Install Kubernetes packages
+  apt:
+    name:
+      - kubelet={{ kubernetes_version }}*
+      - kubeadm={{ kubernetes_version }}*
+      - kubectl={{ kubernetes_version }}*
+    state: present
+    update_cache: yes
+
+- name: Hold Kubernetes packages
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: Initialize Kubernetes master
+  command: kubeadm init --pod-network-cidr={{ pod_network_cidr }}
+  args:
+    creates: /etc/kubernetes/admin.conf
+  when: node_type == "master"
+  register: kubeadm_init
+
+- name: Create .kube directory
+  file:
+    path: "{{ ansible_env.HOME }}/.kube"
+    state: directory
+    mode: '0755'
+  when: node_type == "master"
+
+- name: Copy admin.conf to user's kube config
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "{{ ansible_env.HOME }}/.kube/config"
+    remote_src: yes
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+  when: node_type == "master"
+
+- name: Apply Calico CNI using kubernetes.core.k8s
+  kubernetes.core.k8s:
+    src: https://docs.projectcalico.org/manifests/calico.yaml
+    state: present
+    kubeconfig: "{{ ansible_env.HOME }}/.kube/config"
+  when: node_type == "master"
+  run_once: true

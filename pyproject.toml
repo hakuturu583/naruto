@@ -1,0 +1,15 @@
+[project]
+name = "naruto"
+version = "0.1.0"
+description = "Networked Agent Replication Utility Tool Orchestrator"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+dependencies = [
+    "ansible>=10.7.0",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.2.0",
+]
