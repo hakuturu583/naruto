@@ -1,0 +1,56 @@
+name: Test Ansible Playbook
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test-ansible:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv sync
+          uv run ansible-galaxy collection install -r ansible/requirements.yml
+
+      - name: Lint Ansible playbook
+        run: |
+          uv run ansible-lint ansible/
+
+      - name: Check Ansible playbook syntax
+        run: |
+          cd ansible
+          uv run ansible-playbook -i inventory_standalone.yml setup-k8s.yml --syntax-check
+
+      - name: Run Ansible playbook (dry-run)
+        run: |
+          cd ansible
+          uv run ansible-playbook -i inventory_ci.yml setup-k8s.yml --check --diff
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: false
+        continue-on-error: true  # Allow failure since we can't actually install K8s in CI
+
+      # Note: Full run is commented out as it would actually install K8s on the runner
+      # Uncomment only if you want to test full installation
+      # - name: Run Ansible playbook (full)
+      #   run: |
+      #     cd ansible
+      #     uv run ansible-playbook -i inventory_standalone.yml setup-k8s.yml
+      #   env:
+      #     ANSIBLE_HOST_KEY_CHECKING: false

@@ -1,0 +1,6 @@
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
+      node_type: master
+      ansible_become: false  # For CI testing

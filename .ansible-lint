@@ -1,3 +1,6 @@
 ---
 skip_list:
   - var-naming[no-role-prefix]  # We want simple variable names without role prefix
+
+exclude_paths:
+  - .github/

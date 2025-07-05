@@ -93,6 +93,16 @@ If you setup in single node (local machine), you can use this command:
 ```bash
 # Uses local connection - no SSH required
 ansible-playbook -i inventory_standalone.yml setup-k8s.yml --ask-become-pass
+
+# For debugging, add -vvv flag
+ansible-playbook -i inventory_standalone.yml setup-k8s.yml --ask-become-pass -vvv
 ```
 
 Note: The `inventory_standalone.yml` uses `ansible_connection: local` which runs commands directly on the local machine without SSH.
+
+### Troubleshooting
+
+If you encounter apt update errors:
+1. Check your internet connection
+2. Check if you're behind a proxy (set HTTP_PROXY/HTTPS_PROXY environment variables)
+3. Try running `sudo apt-get update` manually to see the actual error
