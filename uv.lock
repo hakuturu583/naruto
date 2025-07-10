@@ -594,26 +594,24 @@ dependencies = [
     { name = "kubernetes" },
 ]
 
-[package.optional-dependencies]
-dev = [
-    { name = "pre-commit" },
-]
-
 [package.dev-dependencies]
 dev = [
     { name = "ansible-lint" },
+    { name = "pre-commit" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "ansible", specifier = ">=10.7.0" },
     { name = "kubernetes", specifier = ">=28.1.0" },
-    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.2.0" },
 ]
 provides-extras = ["dev"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "ansible-lint", specifier = ">=25.6.1" }]
+dev = [
+    { name = "ansible-lint", specifier = ">=25.6.1" },
+    { name = "pre-commit", specifier = ">=4.2.0" },
+]
 
 [[package]]
 name = "nodeenv"

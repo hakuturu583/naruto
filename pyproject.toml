@@ -11,9 +11,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
-    "pre-commit>=4.2.0",
-]
+dev = []
 
 [build-system]
 requires = ["hatchling"]
@@ -22,4 +20,5 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "ansible-lint>=25.6.1",
+    "pre-commit>=4.2.0",
 ]
