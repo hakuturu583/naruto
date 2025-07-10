@@ -3,7 +3,7 @@ name: Build and Push Claude Code Docker Image
 on:
   push:
     branches:
-      - main
+      - master
       - 'doc/**'
     paths:
       - 'docker/coding_agents/claude_code/**'
