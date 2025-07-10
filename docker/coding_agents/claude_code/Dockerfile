@@ -1,6 +1,5 @@
 # Dockerfile for Claude Code execution environment
-ARG BASE_IMAGE=ubuntu:22.04
-FROM ${BASE_IMAGE}
+FROM node:20
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
