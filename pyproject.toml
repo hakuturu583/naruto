@@ -10,11 +10,11 @@ dependencies = [
     "kubernetes>=28.1.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=4.2.0",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[tool.uv]
-dev-dependencies = [
-    "pre-commit>=4.2.0",
-]

@@ -427,7 +427,7 @@ dependencies = [
     { name = "kubernetes" },
 ]
 
-[package.dev-dependencies]
+[package.optional-dependencies]
 dev = [
     { name = "pre-commit" },
 ]
@@ -436,10 +436,9 @@ dev = [
 requires-dist = [
     { name = "ansible", specifier = ">=10.7.0" },
     { name = "kubernetes", specifier = ">=28.1.0" },
+    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.2.0" },
 ]
-
-[package.metadata.requires-dev]
-dev = [{ name = "pre-commit", specifier = ">=4.2.0" }]
+provides-extras = ["dev"]
 
 [[package]]
 name = "nodeenv"
