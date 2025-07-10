@@ -53,5 +53,5 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./docker/coding_agents/claude_code
-          push: ${{ github.event_name != 'pull_request' }}
+          push: false
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
