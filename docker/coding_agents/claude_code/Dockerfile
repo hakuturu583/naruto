@@ -1,38 +1,33 @@
-# Dockerfile for Claude Code execution environment
-FROM node:20
+FROM ubuntu:24.04
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Tokyo
 
 # Install basic packages
-RUN apt-get update && apt-get install -y \
-    curl \
-    wget \
-    git \
-    build-essential \
-    software-properties-common \
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    sudo \
-    tzdata \
+# Install basic development tools and iptables/ipset
+RUN apt-get update && apt-get install -y less \
+      git \
+      procps \
+      sudo \
+      fzf \
+      zsh \
+      man-db \
+      unzip \
+      gnupg2 \
+      gh \
+      iptables \
+      ipset \
+      iproute2 \
+      dnsutils \
+      aggregate \
+      jq \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js (required for Claude Code)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest
-
-
-# Install development tools
-RUN apt-get update && apt-get install -y \
-    vim \
-    nano \
-    htop \
-    ripgrep \
-    fd-find \
-    && rm -rf /var/lib/apt/lists/*
 
 # Install GitHub CLI
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
