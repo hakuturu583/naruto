@@ -55,5 +55,10 @@ RUN npm install -g @anthropic-ai/claude-code
 ARG WORKDIR=/workspace
 WORKDIR ${WORKDIR}
 
+# Create entrypoint script
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Set entrypoint
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["/bin/bash"]
