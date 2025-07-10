@@ -1,60 +1,58 @@
-FROM node:20
+# Dockerfile for Claude Code execution environment
+ARG BASE_IMAGE=ubuntu:22.04
+FROM ${BASE_IMAGE}
 
-ARG TZ
-ENV TZ="$TZ"
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Tokyo
 
-# Install basic development tools and iptables/ipset
-RUN apt update && apt install -y less \
-  git \
-  procps \
-  sudo \
-  fzf \
-  zsh \
-  man-db \
-  unzip \
-  gnupg2 \
-  gh \
-  iptables \
-  ipset \
-  iproute2 \
-  dnsutils \
-  aggregate \
-  jq
+# Install basic packages
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    build-essential \
+    software-properties-common \
+    ca-certificates \
+    gnupg \
+    lsb-release \
+    sudo \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
 
-# Ensure default node user has access to /usr/local/share
-RUN mkdir -p /usr/local/share/npm-global && \
-  chown -R node:node /usr/local/share
+# Install Node.js (required for Claude Code)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
 
-ARG USERNAME=node
 
-# Persist bash history.
-RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
-  && mkdir /commandhistory \
-  && touch /commandhistory/.bash_history \
-  && chown -R $USERNAME /commandhistory
+# Install development tools
+RUN apt-get update && apt-get install -y \
+    vim \
+    nano \
+    htop \
+    ripgrep \
+    fd-find \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set `DEVCONTAINER` environment variable to help with orientation
-ENV DEVCONTAINER=true
+# Install GitHub CLI
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && apt-get update \
+    && apt-get install -y gh \
+    && rm -rf /var/lib/apt/lists/*
 
-# Create workspace and config directories and set permissions
-RUN mkdir -p /workspace /home/node/.claude && \
-  chown -R node:node /workspace /home/node/.claude
+# Install Claude Code
+RUN npm install -g @anthropic-ai/claude-code
 
-WORKDIR /workspace
+# Create working directory
+ARG WORKDIR=/workspace
+WORKDIR ${WORKDIR}
 
-RUN ARCH=$(dpkg --print-architecture) && \
-  wget "https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_${ARCH}.deb" && \
-  sudo dpkg -i "git-delta_0.18.2_${ARCH}.deb" && \
-  rm "git-delta_0.18.2_${ARCH}.deb"
+# Copy test script for debugging
+COPY test-env.sh /usr/local/bin/test-env
+RUN chmod +x /usr/local/bin/test-env
 
-# Set up non-root user
-USER node
-
-# Install global packages
-ENV NPM_CONFIG_PREFIX=/usr/local/share/npm-global
-ENV PATH=$PATH:/usr/local/share/npm-global/bin
-
-# Set the default shell to zsh rather than sh
-ENV SHELL=/bin/zsh
-
-# Default powerline10k theme
+# Set entrypoint
+CMD ["/bin/bash"]
