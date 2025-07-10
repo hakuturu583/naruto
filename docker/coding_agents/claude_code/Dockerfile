@@ -49,9 +49,5 @@ RUN npm install -g @anthropic-ai/claude-code
 ARG WORKDIR=/workspace
 WORKDIR ${WORKDIR}
 
-# Copy test script for debugging
-COPY test-env.sh /usr/local/bin/test-env
-RUN chmod +x /usr/local/bin/test-env
-
 # Set entrypoint
 CMD ["/bin/bash"]
