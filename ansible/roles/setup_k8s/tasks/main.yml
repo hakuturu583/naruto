@@ -129,6 +129,6 @@
   kubernetes.core.k8s:
     src: https://docs.projectcalico.org/manifests/calico.yaml
     state: present
-    kubeconfig: /etc/kubernetes/admin.conf  # Use admin.conf directly
+    kubeconfig: "{{ real_user_home.stdout }}/.kube/config"
   when: node_type == "master"
   run_once: true
